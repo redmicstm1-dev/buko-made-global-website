@@ -1,0 +1,43 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { ArrowLeft, ArrowRight, ArrowUpRight, CheckCircle2, ClipboardList, MessageCircle, ShieldCheck } from 'lucide-react';
+import { getProduct, products } from '@/lib/products';
+
+export function generateStaticParams() {
+  return products.map((product) => ({ slug: product.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const product = getProduct(slug);
+  if (!product) return { title: 'Equipment | Buko Made Global Concept' };
+  return {
+    title: `${product.name} | Buko Made Global Concept`,
+    description: `${product.summary} Request product details and a quotation from Buko Made Global Concept in Lagos, Nigeria.`,
+  };
+}
+
+export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const product = getProduct(slug);
+  if (!product) notFound();
+  const whatsappText = encodeURIComponent(`Hello Buko Made Global Concept, I would like to enquire about the ${product.name}. Please share the available model options, specifications, current price and delivery details.`);
+  const related = products.filter((item) => item.slug !== product.slug && item.category === product.category).slice(0, 3);
+  const recommendations = related.length ? related : products.filter((item) => item.slug !== product.slug).slice(0, 3);
+
+  return <main className="product-page">
+    <div className="topline"><div className="container topline-inner"><span>Medical &amp; hospital equipment procurement</span><span className="topline-right">Lagos, Nigeria <span className="topline-dot">•</span> Serving enquiries across Africa</span></div></div>
+    <header className="site-header"><div className="container header-inner"><Link className="product-brand" href="/" aria-label="Buko Made Global Concept home"><span className="product-brand-mark">B<span>+</span></span><span className="brand-wordmark"><strong>BUKO MADE</strong><strong>GLOBAL CONCEPT</strong><small>MEDICAL &amp; HOSPITAL EQUIPMENT</small></span></Link><nav className="desktop-nav" aria-label="Main navigation"><Link href="/#categories">Equipment</Link><Link href="/#how-it-works">How it works</Link><Link href="/#about">About us</Link><Link href="/#contact">Contact</Link></nav><Link className="button button-small button-primary header-cta" href={`https://wa.me/2348140212430?text=${whatsappText}`} target="_blank">Ask about this product <ArrowUpRight size={16}/></Link></div></header>
+
+    <section className="product-breadcrumb"><div className="container"><Link href="/#categories"><ArrowLeft size={15}/> All equipment categories</Link><span>/</span><span>{product.category}</span></div></section>
+    <section className="product-hero"><div className="container product-hero-grid"><div className="product-copy"><div className="eyebrow"><span className="eyebrow-line"/>{product.eyebrow}</div><p className="product-category-label">{product.category}</p><h1>{product.name}</h1><p className="product-summary">{product.summary}</p><div className="product-price-box"><span className="price-icon">₦</span><div><strong>Request current pricing</strong><p>{product.priceNote}</p></div></div><div className="product-hero-actions"><Link className="button button-primary" href={`https://wa.me/2348140212430?text=${whatsappText}`} target="_blank"><MessageCircle size={17}/> Request a quotation</Link><Link className="button product-secondary" href="/#quote">Use enquiry form <ArrowRight size={16}/></Link></div><div className="product-assurance"><span><CheckCircle2 size={15}/> Confirm model and specifications</span><span><CheckCircle2 size={15}/> Confirm delivery terms before purchase</span></div></div><div className="product-visual" aria-label={`Illustrative equipment card for ${product.name}`}><div className="product-visual-top"><span>PRODUCT ENQUIRY</span><span className="product-visual-cross">+</span></div><div className="product-illustration"><div className="illustration-circle circle-one"/><div className="illustration-circle circle-two"/><div className="illustration-device"><div className="device-screen"><span/><span/><span/></div><div className="device-body"/><div className="device-stand"/><div className="device-base"/></div><div className="illustration-plus">+</div></div><div className="product-visual-bottom"><span>BUKO MADE GLOBAL CONCEPT</span><strong>{product.badge}</strong></div></div></div></section>
+
+    <section className="product-content-section"><div className="container product-content-grid"><article className="product-main-content"><div className="eyebrow"><span className="eyebrow-line"/> PRODUCT OVERVIEW</div><h2>Understand the product<br/><em>before you specify it.</em></h2><p className="product-long-copy">{product.overview}</p><div className="product-detail-block"><div className="detail-heading"><span className="detail-icon"><ClipboardList size={19}/></span><div><h3>What to consider when selecting</h3><p>Use these points to prepare a clearer, more useful enquiry.</p></div></div><ul className="product-check-list">{product.selectionPoints.map((point) => <li key={point}><CheckCircle2 size={17}/><span>{point}</span></li>)}</ul></div><div className="product-detail-block"><div className="detail-heading"><span className="detail-icon"><ShieldCheck size={19}/></span><div><h3>Information to include in your request</h3><p>Share as many relevant details as you have available.</p></div></div><ul className="product-check-list">{product.whatToConfirm.map((point) => <li key={point}><CheckCircle2 size={17}/><span>{point}</span></li>)}</ul></div><div className="product-notice"><strong>Important product information</strong><p>Product configuration, availability, specifications, included accessories, warranty, documentation and delivery terms must be confirmed for the exact model quoted. This page is a buying guide, not a substitute for the manufacturer's official instructions or a clinical assessment.</p></div></article><aside className="product-sidebar"><div className="sidebar-card"><span className="sidebar-kicker">NEED THIS EQUIPMENT?</span><h3>Tell us what your facility requires.</h3><p>Send the product name, quantity, preferred specification and delivery location. If you have a procurement document, you can describe its requirements in your enquiry.</p><Link className="button button-primary sidebar-button" href={`https://wa.me/2348140212430?text=${whatsappText}`} target="_blank">Enquire on WhatsApp <ArrowUpRight size={16}/></Link><Link className="sidebar-email" href="mailto:chibukoakwuobu@gmail.com?subject=Medical%20equipment%20quotation">Or email chibukoakwuobu@gmail.com</Link></div><div className="sidebar-note"><span>HOW PRICING WORKS</span><p>We quote against the requested model, configuration, quantity and destination. A market reference is not treated as Buko's confirmed selling price.</p></div></aside></div></section>
+
+    <section className="related-section"><div className="container"><div className="related-heading"><div><div className="eyebrow"><span className="eyebrow-line"/> KEEP EXPLORING</div><h2>Other equipment to consider.</h2></div><Link className="text-link" href="/#categories">Browse all categories <ArrowRight size={16}/></Link></div><div className="related-grid">{recommendations.map((item, index) => <Link className="related-card" href={`/products/${item.slug}`} key={item.slug}><span className="related-number">0{index + 1}</span><span className="related-category">{item.category}</span><h3>{item.name}</h3><p>{item.summary}</p><span className="related-link">View product details <ArrowUpRight size={15}/></span></Link>)}</div></div></section>
+
+    <footer className="site-footer"><div className="container footer-main"><Link className="product-brand product-brand-light" href="/"><span className="product-brand-mark">B<span>+</span></span><span className="brand-wordmark"><strong>BUKO MADE</strong><strong>GLOBAL CONCEPT</strong><small>MEDICAL &amp; HOSPITAL EQUIPMENT</small></span></Link><p>Medical &amp; hospital equipment enquiries,<br/>organised around your requirements.</p><Link href="/#home" className="back-top">BACK TO HOME <ArrowUpRight size={15}/></Link></div><div className="container footer-bottom"><span>© {new Date().getFullYear()} Buko Made Global Concept.</span><span>MEDICAL &amp; HOSPITAL EQUIPMENT</span><span>Built for clear enquiries.</span></div></footer>
+    <a className="floating-whatsapp" href={`https://wa.me/2348140212430?text=${whatsappText}`} target="_blank" rel="noreferrer" aria-label="Ask about this product on WhatsApp"><MessageCircle size={23}/></a>
+  </main>;
+}
